@@ -8,7 +8,7 @@
 		tools:context=".MainActivity">
 
 	<TextureView
-			android:id="@+id/view_finder"
+			android:id="@+id/cameraPreview"
 			android:layout_width="640px"
 			android:layout_height="640px"
 			app:layout_constraintTop_toTopOf="parent"
@@ -16,4 +16,13 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"/>
 
+	<ImageButton
+			android:id="@+id/buttonCapture"
+			android:layout_width="72dp"
+			android:layout_height="72dp"
+			android:layout_margin="24dp"
+			app:srcCompat="@android:drawable/ic_menu_camera"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

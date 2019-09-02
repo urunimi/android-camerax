@@ -5,6 +5,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Matrix
 import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
@@ -25,7 +27,6 @@ private const val REQUEST_CODE_PERMISSIONS = 10
 private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 
 class MainActivity : AppCompatActivity(), LifecycleOwner {
-
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -48,6 +49,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
     private fun startCamera() {
         val preview = preparePreview()
         val imageCapture = prepareImageCapture()
+        val analyzerUsecase = prepareAnalyzerUsecase()
 
         buttonCapture.setOnClickListener {
             val file = File(externalMediaDirs.first(), "${System.currentTimeMillis()}.jpg")
@@ -65,7 +67,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
             })
         }
 
-        CameraX.bindToLifecycle(this, preview, imageCapture)
+        CameraX.bindToLifecycle(this, preview, imageCapture, analyzerUsecase)
     }
 
     private fun preparePreview(): Preview {
@@ -93,6 +95,18 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
             setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
         }.build()
         return ImageCapture(imageCaptureConfig)
+    }
+
+    private fun prepareAnalyzerUsecase(): ImageAnalysis {
+        val analyzerConfig = ImageAnalysisConfig.Builder().apply {
+            val analyzerThread = HandlerThread("LuminosityAnalysis").apply { start() }
+            setCallbackHandler(Handler(analyzerThread.looper))
+            setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
+        }.build()
+        val analyzerUsecase = ImageAnalysis(analyzerConfig).apply {
+            analyzer = LuminosityAnalyzer()
+        }
+        return analyzerUsecase
     }
 
     private fun updateTransform() {

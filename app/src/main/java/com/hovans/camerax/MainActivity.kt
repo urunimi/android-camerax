@@ -4,8 +4,14 @@ package com.hovans.camerax
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Rational
+import android.util.Size
 import android.view.TextureView
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraX
+import androidx.camera.core.Preview
+import androidx.camera.core.PreviewConfig
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
@@ -41,7 +47,24 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
     }
 
     private fun startCamera() {
-        // TODO: Implement CameraX operations
+        val previewConfig = PreviewConfig.Builder().apply {
+            setTargetAspectRatio(Rational(1, 1))
+            setTargetResolution(Size(640, 640))
+        }.build()
+
+        val preview = Preview(previewConfig)
+
+        preview.setOnPreviewOutputUpdateListener {
+            val parent = viewFinder.parent as ViewGroup
+            // To update the SurfaceTexture, we have to remove it and re-add it
+            parent.removeView(viewFinder)
+            parent.addView(viewFinder, 0)
+
+            viewFinder.surfaceTexture = it.surfaceTexture
+            updateTransform()
+        }
+
+        CameraX.bindToLifecycle(this, preview)
     }
 
     private fun updateTransform() {
@@ -63,7 +86,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
     /**
      * Check if all permission specified in the manifest have been granted
      */
-    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+    private fun allPermissionsGranted(): Boolean = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 }

@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
             setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
         }.build()
         val analyzerUsecase = ImageAnalysis(analyzerConfig).apply {
-            analyzer = LuminosityAnalyzer()
+            analyzer = LuminosityAnalyzer(baseContext)
         }
         return analyzerUsecase
     }

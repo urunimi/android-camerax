@@ -1,6 +1,7 @@
 package com.hovans.camerax
 
-import android.util.Log
+import android.content.Context
+import android.widget.Toast
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import java.nio.ByteBuffer
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeUnit
  *
  * Created by Ben on 02/09/2019.
  */
-class LuminosityAnalyzer : ImageAnalysis.Analyzer {
+class LuminosityAnalyzer(val context: Context) : ImageAnalysis.Analyzer {
     private var lastAnalyzedTimestamp = 0L
 
     /**
@@ -27,7 +28,7 @@ class LuminosityAnalyzer : ImageAnalysis.Analyzer {
     override fun analyze(image: ImageProxy, rotationDegrees: Int) {
         val currentTimestamp = System.currentTimeMillis()
         // Calculate the average luma no more often than every second
-        if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(1)) {
+        if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(4)) {
             // Since format in ImageAnalysis is YUV, image.planes[0] contains the Y (luminance) plane
             val buffer = image.planes[0].buffer
             // Extract image data from callback object
@@ -37,7 +38,7 @@ class LuminosityAnalyzer : ImageAnalysis.Analyzer {
             // Compute average luminance for the image
             val luma = pixels.average()
             // Log the new luma value
-            Log.d("CameraXApp", "Average luminosity: $luma")
+            Toast.makeText(context, "Average luminosity: $luma", Toast.LENGTH_LONG)
             // Update timestamp of last analyzed frame
             lastAnalyzedTimestamp = currentTimestamp
         }

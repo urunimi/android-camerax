@@ -38,7 +38,7 @@ class LuminosityAnalyzer(val context: Context) : ImageAnalysis.Analyzer {
             // Compute average luminance for the image
             val luma = pixels.average()
             // Log the new luma value
-            Toast.makeText(context, "Average luminosity: $luma", Toast.LENGTH_LONG)
+            Toast.makeText(context, "Average luminosity: $luma", Toast.LENGTH_LONG).show()
             // Update timestamp of last analyzed frame
             lastAnalyzedTimestamp = currentTimestamp
         }
